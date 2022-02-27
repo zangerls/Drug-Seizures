@@ -1,0 +1,165 @@
+## OVERVIEW OF DATA
+
+SELECT * 
+FROM `practise-340211.drugs.seizures`
+LIMIT 10;
++----------+-----------+----------+---------------+------------------+------+---------------+
+| Region   | Country   | ISO_Code | Drug_Group    | Drug             | Year | KG_Equivalent |
++----------+-----------+----------+---------------+------------------+------+---------------+
+| Africa   | Algeria   | DZA      | Cannabis-type | Marijuana (herb) | 1970 |           141 |
+| Africa   | Algeria   | DZA      | Cannabis-type | Hashish (resin)  | 1970 |           140 |
+| Americas | Argentina | ARG      | Cocaine-type  | Coca leaf        | 1970 |         13482 |
+| Oceania  | Australia | AUS      | Opioids       | Heroin           | 1970 |             1 |
+| Oceania  | Australia | AUS      | Opioids       | Opium            | 1970 |             9 |
+| Oceania  | Australia | AUS      | Cannabis-type | Marijuana (herb) | 1970 |           109 |
+| Europe   | Austria   | AUT      | Opioids       | Opium            | 1970 |             1 |
+| Europe   | Austria   | AUT      | Cannabis-type | Marijuana (herb) | 1970 |            28 |
+| Asia     | Bahrain   | BHR      | Opioids       | Opium            | 1970 |             3 |
+| Asia     | Bahrain   | BHR      | Cannabis-type | Marijuana (herb) | 1970 |            96 |
++----------+-----------+----------+---------------+------------------+------+---------------+
+
+SELECT COUNT(DISTINCT Country) AS Countries
+FROM seizures;
++-----------+
+| Countries |
++-----------+
+|       210 |
++-----------+
+
+SELECT DISTINCT Region as Region
+FROM seizures;
++----------+
+| Region   |
++----------+
+| Africa   |
+| Americas |
+| Oceania  |
+| Europe   |
+| Asia     |
++----------+
+
+SELECT MIN(Year) AS First_Year, MAX(Year) AS Last_Year, COUNT(DISTINCT Year) AS Total_Years
+FROM seizures;
++----------------+-------------+-------------+
+| Earlierst_Year | Latest_Year | Total_Years |
++----------------+-------------+-------------+
+|           1970 |        2020 |          51 |
++----------------+-------------+-------------+
+
+SELECT COUNT(DISTINCT Drug_Group) AS Drug_Groups, COUNT (DISTINCT Drug) AS Drugs
+FROM seizures;
++-------------+------+
+| Drug_Groups | Drug |
++-------------+------+
+|          12 |   80 |
++-------------+------+
+
+SELECT FLOOR(SUM(KG_Equivalent)) AS Kilograms_Seized
+FROM seizures;
++------------------+
+| Kilograms_Seized |
++------------------+
+|       1437111170 |
++------------------+
+
+
+## Seizures Summary
+
+SELECT Country, FLOOR(SUM(KG_Equivalent)) AS Kilograms_Seized 
+FROM seizures 
+GROUP BY Country 
+ORDER BY Kilograms_Seized DESC 
+LIMIT 10;
++--------------------------+------------------+
+| Country                  | Kilograms_Seized |
++--------------------------+------------------+
+| Egypt                    |        437856579 |
+| Guatemala                |        195909107 |
+| Colombia                 |        193365715 |
+| Brazil                   |        113287652 |
+| United States of America |         53992176 |
+| Mexico                   |         49989058 |
+| South Africa             |         42680303 |
+| Turkey                   |         36940991 |
+| Philippines              |         28372926 |
+| Paraguay                 |         24246390 |
++--------------------------+------------------+
+
+SELECT Region, FLOOR(SUM(KG_Equivalent)) AS Kilograms_Seized 
+FROM seizures 
+GROUP BY Region 
+ORDER BY Kilograms_Seized DESC;
++----------+------------------+
+| Region   | Kilograms_Seized |
++----------+------------------+
+| Americas |        728008369 |
+| Africa   |        527922088 |
+| Asia     |        102219424 |
+| Europe   |         77274364 |
+| Oceania  |          1686923 |
++----------+------------------+
+
+SELECT Drug_Group, FLOOR(SUM(KG_Equivalent)) AS Kilograms_Seized 
+FROM seizures 
+GROUP BY Drug_Group 
+ORDER BY Kilograms_Seized DESC;
++--------------------------------------------+------------------+
+| Drug_Group                                 | Kilograms_Seized |
++--------------------------------------------+------------------+
+| Opioids                                    |        621462473 |
+| Cannabis-type                              |        596866555 |
+| Cocaine-type                               |        198910743 |
+| Substances not under international control |          8080699 |
+| Precursors                                 |          5987766 |
+| ATS                                        |          3226546 |
+| Non-specified                              |          1781301 |
+| Other miscellaneous                        |           379720 |
+| Sedatives and Tranquillizers               |           371591 |
+| Hallucinogens                              |            28407 |
+| Solvents and Inhallants                    |             8088 |
+| Any drugs                                  |             7275 |
++--------------------------------------------+------------------+
+
+SELECT Year, FLOOR(SUM(KG_Equivalent)) AS Kilograms_Seized, FLOOR(AVG(KG_Equivalent)) AS AVG_Kilograms_Seized 
+FROM seizures 
+WHERE KG_Equivalent > (
+	SELECT AVG(KG_Equivalent) 
+	FROM seizures) 
+GROUP BY Year 
+ORDER BY Kilograms_Seized DESC
+LIMIT 10;
++------+------------------+----------------------+
+| Year | Kilograms_Seized | AVG_Kilograms_Seized |
++------+------------------+----------------------+
+| 1996 |        395412811 |              8786951 |
+| 2009 |         86514432 |              1272271 |
+| 1984 |         76110057 |              2624484 |
+| 2010 |         70367097 |              1353213 |
+| 1987 |         65790089 |              1993639 |
+| 1983 |         62392996 |              2310851 |
+| 2008 |         50843526 |               736862 |
+| 2007 |         43590279 |               751556 |
+| 1988 |         34097523 |               897303 |
+| 1997 |         28521828 |               582078 |
++------+------------------+----------------------+
+
+SELECT Region, Drug_Group, FLOOR(SUM(KG_Equivalent)) AS Kilograms_Seized 
+FROM seizures 
+GROUP BY Region, Drug_Group 
+ORDER BY Kilograms_Seized DESC 
+LIMIT 10;
++----------+--------------------------------------------+------------------+
+| Region   | Drug_Group                                 | Kilograms_Seized |
++----------+--------------------------------------------+------------------+
+| Africa   | Opioids                                    |        395771939 |
+| Americas | Cannabis-type                              |        316053571 |
+| Americas | Opioids                                    |        207479374 |
+| Americas | Cocaine-type                               |        196691809 |
+| Africa   | Cannabis-type                              |        130989621 |
+| Asia     | Cannabis-type                              |         76777279 |
+| Europe   | Cannabis-type                              |         71597880 |
+| Asia     | Opioids                                    |         16365804 |
+| Asia     | Substances not under international control |          5209806 |
+| Americas | Precursors                                 |          3918235 |
++----------+--------------------------------------------+------------------+
+
